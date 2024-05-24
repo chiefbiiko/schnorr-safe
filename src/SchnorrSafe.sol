@@ -23,7 +23,7 @@ contract SchnorrSafe {
             address adrs =  pubKeys[i].toAddress();
             int ownerIndex = -1;
             for (uint j = 0; j < owners.length; j++) {
-                if (adrs == address(owners[j])) {
+                if (address(owners[j]) != address(0) && adrs == address(owners[j])) {
                     ownerIndex = j;
                     break;
                 }
