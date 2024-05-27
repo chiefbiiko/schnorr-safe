@@ -32,7 +32,7 @@ export function computeSignature(noncePubKeys, secretKey, msg) {
   // LibSecp256k1.Point memory aggNoncePubKey;
   // aggNoncePubKey = aggregatePublicKeys(noncePubKeys);
 
-  const aggNoncePubKey = null //TODO
+  const aggNoncePubKey = aggregatePublicKeys(noncePubKeys)
 
   // // 5. Derive commitment from aggNoncePubKey.
   // address commitment = deriveCommitment(aggNoncePubKey);
@@ -52,7 +52,16 @@ export function computeSignature(noncePubKeys, secretKey, msg) {
 }
 
 function derivePublicKey(sk) {
-  //TODO
+    //TODO
+    // LibSecp256k1.JacobianPoint memory jacResult;
+    // jacResult = LibSecp256k1.G().toJacobian().mul(privKey);
+    //
+    // uint z = invMod(jacResult.z);
+    //
+    // return LibSecp256k1.Point({
+    //     x: mulmod(jacResult.x, z, P),
+    //     y: mulmod(jacResult.y, z, P)
+    // });>
 }
 
 // function derivePublicKey(uint privKey)
@@ -144,41 +153,55 @@ function derivePublicKey(sk) {
 // );
 // }
 
-// function aggregatePublicKeys(LibSecp256k1.Point[] memory pubKeys)
-// internal
-// pure
-// returns (LibSecp256k1.Point memory)
-// {
-// // aggPubKey = sum(signers)
-// //           = pubKey₁ + pubKey₂ + ... + pubKeyₙ
-// require(pubKeys.length != 0);
-
-// LibSecp256k1.JacobianPoint memory aggPubKey = pubKeys[0].toJacobian();
-
-// for (uint i = 1; i < pubKeys.length; i++) {
-//     aggPubKey.addAffinePoint(pubKeys[i]);
-// }
-
-// return aggPubKey.toAffine();
-// }
-
+// aggPubKey = sum(signers)
+//           = pubKey₁ + pubKey₂ + ... + pubKeyₙ
 function aggregatePublicKeys(pubKeys) {
   const aggPubKey = toJacobian(pubKeys[0])
 
-  //TODO
   for (let i = 1; i < pubKeys.length; i++) {
-    aggPubKey.addAffinePoint(pubKeys[i])
+    aggPubKey = addAffineToJacobianPoint(aggPubKey, pubKeys[i])
   }
 
-  // return aggPubKey.toAffine();
+  return toAffine(aggPubKey)
 }
 
 function toJacobian(p) {
   return { x: p.x, y: p.y, z: 1n }
 }
 
+// From https://github.com/jbaylina/ecsol/blob/c2256afad126b7500e6f879a9369b100e47d435d/ec.sol#L51-L67
+function _invMod(x) {
+    let t = 0n
+    let newT = 1n
+    let r = _P
+    let newR = x
+    let q
+    while (newR !== 0n) {
+        q = r / newR;
+        (t, newT) = (newT, addmod(t , (n - mulmod(q, newT,n)) , n));
+        (r, newR) = (newR, r - q * newR );
+    }
+    return t
+}
+
 function toAffine(p) {
-  //TODO
+  const out = { x: null, y: null, z: null }
+   
+    // Compute z⁻¹, i.e. the modular inverse of self.z.
+    const zInv = _invMod(p.z)
+
+    // Compute (z⁻¹)² (mod P)
+    const zInv_2 = mulmod(zInv, zInv, _P)
+
+    // Compute self.x * (z⁻¹)² (mod P), i.e. the x coordinate of given
+    // Jacobian point in Affine representation.
+     out.x = mumod(p.x, zInv_2, _P)
+
+    // Compute self.y * (z⁻¹)³ (mod P), i.e. the y coordinate of given
+    // Jacobian point in Affine representation.
+    out.y = mulmod(p.y, mulmod(zInv, zInv_2, _P), _P)
+
+    return out
 }
 
 /// Computes the modulo.
@@ -195,7 +218,7 @@ function mulmod(a, b, p) {
   return mod(a * b, p)
 }
 
-function addAffinePoint(jacobian, affine) {
+function addAffineToJacobianPoint(jacobian, affine) {
   // Addition formula:
   //      x = r² - j - (2 * v)             (mod P)
   //      y = (r * (v - x)) - (2 * y1 * j) (mod P)
