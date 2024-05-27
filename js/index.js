@@ -245,10 +245,12 @@ function addAffinePoint(jacobian, affine) {
   //           = (z1 + h)² + (P - z1²) + (P - h²) (mod P)
   //             ╰───────╯   ╰───────╯   ╰──────╯
   //               left         mid       right
-  const left = mulmod(addmod(z1, h, _P), addmod(z1, h, _P), _P)
-  const mid = _P - z1_2
-  const right = _P - h_2
-  out.z = addmod(left, addmod(mid, right, _P), _P)
+  { 
+    const left = mulmod(addmod(z1, h, _P), addmod(z1, h, _P), _P)
+    const mid = _P - z1_2
+    const right = _P - h_2
+    out.z = addmod(left, addmod(mid, right, _P), _P)
+  }
 
   // Compute v = x1 * i (mod P)
   const v = mulmod(x1, i, _P)
@@ -275,14 +277,12 @@ function addAffinePoint(jacobian, affine) {
   // Unchecked because the only protected operations performed are
   // subtractions from P where the subtrahend is the result of a (mod P)
   // computation, i.e. the subtrahend being guaranteed to be less than P.
-  //TODOTODO
-  // unchecked {
-  //     uint r_2 = mulmod(r, r, _P);
-  //     uint mid = _P - j;
-  //     uint right = _P - mulmod(2, v, _P);
-
-  //     self.x = addmod(r_2, addmod(mid, right, _P), _P);
-  // }
+  {
+    const r_2 = mulmod(r, r, _P)
+    const mid = _P - j
+    const right = _P - mulmod(2n, v, _P)
+    out.x = addmod(r_2, addmod(mid, right, _P), _P)
+  }
 
   // Compute y = (r * (v - x))       - (2 * y1 * j)       (mod P)
   //           = (r * (v - x))       + (P - (2 * y1 * j)) (mod P)
@@ -293,11 +293,11 @@ function addAffinePoint(jacobian, affine) {
   // Unchecked because the only protected operations performed are
   // subtractions from P where the subtrahend is the result of a (mod P)
   // computation, i.e. the subtrahend being guaranteed to be less than P.
-  //TODOTODO
-  // unchecked {
-  //     uint left = mulmod(r, addmod(v, _P - self.x, _P), _P);
-  //     uint right = _P - mulmod(2, mulmod(y1, j, _P), _P);
+  {
+    const left = mulmod(r, addmod(v, _P - out.x, _P), _P)
+    const right = _P - mulmod(2n, mulmod(y1, j, _P), _P)
+    out.y = addmod(left, right, _P)
+  }
 
-  //     self.y = addmod(left, right, _P);
-  // }
+  return out
 }
