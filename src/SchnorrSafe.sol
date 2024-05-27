@@ -9,6 +9,16 @@ import { LibSchnorrExtended } from "scribe/script/libs/LibSchnorrExtended.sol";
 contract SchnorrSafe {
     using LibSchnorrExtended for LibSecp256k1.Point[];
 
+    /// Writes a signer's initial contribution consisting of pubkey and nonce 
+    /// pubkey on-chain.
+    function contributePubKeys() {
+
+    }
+
+    function contributeSignature() {
+
+    }
+
     function execute(
         address safe,
          address to, uint256 value, bytes memory data, uint8 operation,
