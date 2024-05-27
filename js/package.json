@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "fmt": "npx --yes prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write '{,!(node_modules)/**/}*.js'"
+  },
   "type": "module",
   "dependencies": {
     "@noble/curves": "^1.4.0"

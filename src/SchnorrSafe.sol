@@ -12,13 +12,17 @@ contract SchnorrSafe {
     /// Writes a signer's initial contribution consisting of pubkey and nonce 
     /// pubkey on-chain.
     function contributePubKeys() {
-
+        //TODO
     }
 
+    /// Contributes an individual signature given all pubkeys contirbuted in
+    /// the setup round.
     function contributeSignature() {
-
+        //TODO
     }
 
+    //TODO have execute() read pubkeys , msg? from storage
+    //TODO offload as much as possible computation offchain: agg sigs offchain, commitmetn etc
     function execute(
         address safe,
          address to, uint256 value, bytes memory data, uint8 operation,
