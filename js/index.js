@@ -3,6 +3,13 @@ import { secp256k1, schnorr } from "@noble/curves/secp256k1"
 const _A = 0n
 const _B = 7n
 const _P = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2fn
+const _Q = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141n
+function G() {
+    return {
+        x: 0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798n,
+        y: 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8n
+    };
+}
 
 /// Creates a new Schnorr keypair over secp256k1.
 /// @return {{ secretKey: Uint8Array, publicKey: Uint8Array }} Key pair
@@ -55,6 +62,7 @@ function derivePublicKey(sk) {
     //TODO
     // LibSecp256k1.JacobianPoint memory jacResult;
     // jacResult = LibSecp256k1.G().toJacobian().mul(privKey);
+    const j = toJacobian(G()).mul(sk) //TODO TBC
     //
     // uint z = invMod(jacResult.z);
     //
