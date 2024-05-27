@@ -184,7 +184,7 @@ function toAffine(p) {
 /// Computes the modulo.
 /// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder#description
 function mod(x, p) {
-  ;((x % p) + p) % p
+  return ((x % p) + p) % p
 }
 
 function addmod(a, b, p) {
